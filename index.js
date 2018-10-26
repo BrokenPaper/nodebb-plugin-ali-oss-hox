@@ -138,20 +138,10 @@ plugin.load = function (params, callback) {
 function renderAdmin(req, res) {
 	// Regenerate csrf token
 	var token = req.csrfToken();
-
-	var Config = require("./../../config.json");
-	var forumPath = "";
-	if (Config.url) {
-		forumPath = forumPath + String(Config.url);
-	}
-	if (forumPath.split("").reverse()[0] != "/") {
-		forumPath = forumPath + "/";
-	}
 	var data = {
 		bucket: settings.bucket,
 		host: settings.host,
 		path: settings.path,
-		forumPath: forumPath,
 		region: settings.region,
 		accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || "",
 		secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || "",
