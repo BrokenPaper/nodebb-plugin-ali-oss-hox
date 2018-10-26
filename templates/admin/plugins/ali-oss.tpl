@@ -32,6 +32,7 @@ export OSS_UPLOADS_PATH="path"
 
 <h3>Database Stored configuration:</h3>
 <form id="ali-oss-bucket">
+	<input type="hidden" name="_csrf" value="{config.csrf_token}" />
 	<label for="ossbucket">Bucket</label><br/>
 	<input type="text" id="ossbucket" name="bucket" value="{bucket}" title="OSS Bucket" class="form-control input-lg"
 	       placeholder="OSS Bucket"><br/>
@@ -60,6 +61,7 @@ export OSS_UPLOADS_PATH="path"
 		security issue. We highly recommend that you investigate using either <strong>Environment Variables</strong> or
 		<strong>Instance Meta-data</strong>
 	</div>
+	<input type="hidden" name="_csrf" value="{config.csrf_token}" />
 	<input type="text" name="accessKeyId" value="{accessKeyId}" maxlength="20" title="Access Key ID"
 	       class="form-control input-lg" placeholder="Access Key ID"><br/>
 	<input type="text" name="secretAccessKey" value="{secretAccessKey}" title="Secret Access Key"
@@ -88,16 +90,21 @@ export OSS_UPLOADS_PATH="path"
 		});
 
 		function save(type, form) {
-			var data = {
-				_csrf: '{csrf}' || $('#csrf_token').val()
-			};
+			var data = {};
 
 			var values = $(form).serializeArray();
 			for (var i = 0, l = values.length; i < l; i++) {
 				data[values[i].name] = values[i].value;
 			}
 
-			$.post('{forumPath}api/admin/plugins/ali-oss/' + type, data).done(function (response) {
+			$.ajax({
+				method:'POST',
+				url:'{config.relative_path}/api/admin/plugins/ali-oss/' + type, 
+				data,
+				headers:{
+					 'x-csrf-token': config.csrf_token,
+				}
+				}).done(function (response) {
 				if (response) {
 					ajaxify.refresh();
 					app.alertSuccess(response);

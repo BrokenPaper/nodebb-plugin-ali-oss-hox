@@ -7,7 +7,7 @@ var OSS = require('ali-oss'),
 	request = require("request"),
 	winston = module.parent.require("winston"),
 	gm = require("gm"),
-	im = gm.subClass({imageMagick: true}),
+	im = gm.subClass({ imageMagick: true }),
 	meta = module.parent.require("./meta"),
 	db = module.parent.require("./database");
 
@@ -17,8 +17,8 @@ var plugin = {}
 
 var client = null;
 var settings = {
-	"accessKeyId": false,
-	"secretAccessKey": false,
+	"accessKeyId": process.env.OSS_ACCESS_KEY_ID || "",
+	"secretAccessKey": process.env.OSS_SECRET_ACCESS_KEY || "",
 	"region": process.env.OSS_DEFAULT_REGION || "oss-cn-hangzhou",
 	"bucket": process.env.OSS_UPLOADS_BUCKET || undefined,
 	"path": process.env.OSS_UPLOADS_PATH || undefined
@@ -44,14 +44,14 @@ function fetchSettings(callback) {
 			settings.accessKeyId = newSettings.accessKeyId;
 			accessKeyIdFromDb = true;
 		} else {
-			settings.accessKeyId = false;
+			// settings.accessKeyId = false;
 		}
 
 		if (newSettings.secretAccessKey) {
 			settings.secretAccessKey = newSettings.secretAccessKey;
 			secretAccessKeyFromDb = false;
 		} else {
-			settings.secretAccessKey = false;
+			// settings.secretAccessKey = false;
 		}
 
 		if (!newSettings.bucket) {
@@ -72,10 +72,9 @@ function fetchSettings(callback) {
 			settings.path = newSettings.path;
 		}
 
-		if (!newSettings.region) {
-			settings.region = process.env.OSS_DEFAULT_REGION || "";
-		} else {
+		if (newSettings.region) {
 			settings.region = newSettings.region;
+		} else {
 		}
 
 		if (settings.accessKeyId && settings.secretAccessKey && settings.region) {
@@ -142,10 +141,10 @@ function renderAdmin(req, res) {
 
 	var Config = require("./../../config.json");
 	var forumPath = "";
-	if(Config.url){
-		forumPath = forumPath+String(Config.url);
+	if (Config.url) {
+		forumPath = forumPath + String(Config.url);
 	}
-	if(forumPath.split("").reverse()[0] != "/" ){
+	if (forumPath.split("").reverse()[0] != "/") {
 		forumPath = forumPath + "/";
 	}
 	var data = {
@@ -199,13 +198,13 @@ plugin.uploadImage = function (data, callback) {
 	var image = data.image;
 
 	if (!image) {
-		winston.error("invalid image" );
+		winston.error("invalid image");
 		return callback(new Error("invalid image"));
 	}
 
 	//check filesize vs. settings
 	if (image.size > parseInt(meta.config.maximumFileSize, 10) * 1024) {
-		winston.error("error:file-too-big, " + meta.config.maximumFileSize );
+		winston.error("error:file-too-big, " + meta.config.maximumFileSize);
 		return callback(new Error("[[error:file-too-big, " + meta.config.maximumFileSize + "]]"));
 	}
 
@@ -260,7 +259,7 @@ plugin.uploadFile = function (data, callback) {
 
 	//check filesize vs. settings
 	if (file.size > parseInt(meta.config.maximumFileSize, 10) * 1024) {
-		winston.error("error:file-too-big, " + meta.config.maximumFileSize );
+		winston.error("error:file-too-big, " + meta.config.maximumFileSize);
 		return callback(new Error("[[error:file-too-big, " + meta.config.maximumFileSize + "]]"));
 	}
 
@@ -300,8 +299,8 @@ function uploadToOSS(filename, err, buffer, callback) {
 
 	var ossClient = OSSClient();
 	ossClient.useBucket(settings.bucket);
-	ossClient.put(params.Key, buffer).then(function(result) {
-		var host = "https://" + params.Bucket +"."+ settings.region + ".aliyuncs.com";
+	ossClient.put(params.Key, buffer).then(function (result) {
+		var host = "https://" + params.Bucket + "." + settings.region + ".aliyuncs.com";
 		var url = result.url;
 		if (settings.host && 0 < settings.host.length) {
 			host = settings.host;
@@ -315,7 +314,7 @@ function uploadToOSS(filename, err, buffer, callback) {
 			name: filename,
 			url: url
 		});
-	}, function(err) {
+	}, function (err) {
 		return callback(makeError(err));
 	})
 }
