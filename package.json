@@ -1,5 +1,5 @@
 {
-  "name": "nodebb-plugin-ali-oss",
+  "name": "nodebb-plugin-ali-oss-hox",
   "version": "0.2.1",
   "description": "A plugin for NodeBB to take file uploads and store them on OSS for nodebb 1.0",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ziofat/nodebb-plugin-ali-oss.git"
+    "url": "https://github.com/seiyap70/nodebb-plugin-ali-oss-hox.git"
   },
   "keywords": [
     "nodebb",
@@ -20,7 +20,7 @@
   "author": "ziofat",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ziofat/nodebb-plugin-ali-oss/issues"
+    "url": "https://github.com/seiyap70/nodebb-plugin-ali-oss-hox.git/issues"
   },
   "nbbpm": {
     "compatibility": "^1.0.0"

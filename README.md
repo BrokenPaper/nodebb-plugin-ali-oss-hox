@@ -4,7 +4,7 @@
 
 This plugin is a fork of [nodebb-plugin-s3-uploads](https://github.com/LouiseMcMahon/nodebb-plugin-s3-uploads).
 
-`npm install nodebb-plugin-ali-oss`
+`npm install nodebb-plugin-ali-oss-hox`
 
 | Plugin Version | Dependency     | Version Requirement     |
 | ---------------| -------------- |:-----------------------:|
