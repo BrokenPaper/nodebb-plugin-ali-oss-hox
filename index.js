@@ -78,7 +78,7 @@ function fetchSettings(callback) {
 		}
 
 		if (settings.accessKeyId && settings.secretAccessKey && settings.region) {
-			client = new OSS.Wrapper({
+			client = new OSS({
 				region: settings.region,
 				accessKeyId: settings.accessKeyId,
 				accessKeySecret: settings.secretAccessKey
@@ -281,7 +281,7 @@ function uploadToOSS(filename, err, buffer, callback) {
 	var params = {
 		Bucket: settings.bucket,
 		ACL: "public-read",
-		Key: ossKeyPath + uuid() + '.' + mime.extension(mime.lookup(filename)),
+		Key: ossKeyPath + uuid() + '.' + mime.getExtension(mime.getType(filename)),
 		Body: buffer,
 		ContentLength: buffer.length,
 		ContentType: mime.lookup(filename)
