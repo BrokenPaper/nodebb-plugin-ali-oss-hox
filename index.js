@@ -284,7 +284,7 @@ function uploadToOSS(filename, err, buffer, callback) {
 		Key: ossKeyPath + uuid() + '.' + mime.getExtension(mime.getType(filename)),
 		Body: buffer,
 		ContentLength: buffer.length,
-		ContentType: mime.lookup(filename)
+		ContentType: mime.getType(filename)
 	};
 
 	var ossClient = OSSClient();
