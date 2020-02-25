@@ -24,76 +24,16 @@ var settings = {
 	"path": process.env.OSS_UPLOADS_PATH || undefined
 };
 
-var accessKeyIdFromDb = false;
-var secretAccessKeyFromDb = false;
 
-function fetchSettings(callback) {
-	db.getObjectFields(Package.name, Object.keys(settings), function (err, newSettings) {
-		if (err) {
-			winston.error(err.message);
-			if (typeof callback === "function") {
-				callback(err);
-			}
-			return;
-		}
 
-		accessKeyIdFromDb = false;
-		secretAccessKeyFromDb = false;
-
-		if (newSettings.accessKeyId) {
-			settings.accessKeyId = newSettings.accessKeyId;
-			accessKeyIdFromDb = true;
-		} else {
-			// settings.accessKeyId = false;
-		}
-
-		if (newSettings.secretAccessKey) {
-			settings.secretAccessKey = newSettings.secretAccessKey;
-			secretAccessKeyFromDb = false;
-		} else {
-			// settings.secretAccessKey = false;
-		}
-
-		if (!newSettings.bucket) {
-			settings.bucket = process.env.OSS_UPLOADS_BUCKET || "";
-		} else {
-			settings.bucket = newSettings.bucket;
-		}
-
-		if (!newSettings.host) {
-			settings.host = process.env.OSS_UPLOADS_HOST || "";
-		} else {
-			settings.host = newSettings.host;
-		}
-
-		if (!newSettings.path) {
-			settings.path = process.env.OSS_UPLOADS_PATH || "";
-		} else {
-			settings.path = newSettings.path;
-		}
-
-		if (newSettings.region) {
-			settings.region = newSettings.region;
-		} else {
-		}
-
-		if (settings.accessKeyId && settings.secretAccessKey && settings.region) {
-			client = new OSS({
-				region: settings.region,
-				accessKeyId: settings.accessKeyId,
-				accessKeySecret: settings.secretAccessKey
-			});
-		}
-
-		if (typeof callback === "function") {
-			callback();
-		}
-	});
-}
 
 function OSSClient() {
 	if (!client) {
-		fetchSettings();
+		client = new OSS({
+			region: settings.region,
+			accessKeyId: settings.accessKeyId,
+			accessKeySecret: settings.secretAccessKey
+		});
 	}
 
 	return client;
@@ -110,79 +50,18 @@ function makeError(err) {
 	return err;
 }
 
-plugin.activate = function () {
-	fetchSettings();
-};
 
 plugin.deactivate = function () {
 	client = null;
 };
 
 plugin.load = function (params, callback) {
-	fetchSettings(function (err) {
-		if (err) {
-			return winston.error(err.message);
-		}
-		var adminRoute = "/admin/plugins/ali-oss";
 
-		params.router.get(adminRoute, params.middleware.applyCSRF, params.middleware.admin.buildHeader, renderAdmin);
-		params.router.get("/api" + adminRoute, params.middleware.applyCSRF, renderAdmin);
-
-		params.router.post("/api" + adminRoute + "/osssettings", OSSsettings);
-		params.router.post("/api" + adminRoute + "/credentials", credentials);
-
-		callback();
-	});
 };
 
-function renderAdmin(req, res) {
-	// Regenerate csrf token
-	var token = req.csrfToken();
-	var data = {
-		bucket: settings.bucket,
-		host: settings.host,
-		path: settings.path,
-		region: settings.region,
-		accessKeyId: (accessKeyIdFromDb && settings.accessKeyId) || "",
-		secretAccessKey: (accessKeyIdFromDb && settings.secretAccessKey) || "",
-		csrf: token
-	};
 
-	res.render("admin/plugins/ali-oss", data);
-}
 
-function OSSsettings(req, res, next) {
-	var data = req.body;
-	var newSettings = {
-		bucket: data.bucket || "",
-		host: data.host || "",
-		path: data.path || "",
-		region: data.region || ""
-	};
 
-	saveSettings(newSettings, res, next);
-}
-
-function credentials(req, res, next) {
-	var data = req.body;
-	var newSettings = {
-		accessKeyId: data.accessKeyId || "",
-		secretAccessKey: data.secretAccessKey || ""
-	};
-
-	saveSettings(newSettings, res, next);
-}
-
-function saveSettings(settings, res, next) {
-	db.setObject(Package.name, settings, function (err) {
-		if (err) {
-			return next(makeError(err));
-		}
-
-		fetchSettings();
-		res.json("Saved!");
-	});
-}
 
 plugin.uploadImage = function (data, callback) {
 	var image = data.image;
